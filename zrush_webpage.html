@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z Rush - Jeu de Déduction Sociale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(15,20,25,0.95) 0%, rgba(26,31,58,0.8) 100%);
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom: 3px solid #ff4444;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255,68,68,0.03) 2px,
+                rgba(255,68,68,0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ff4444;
+            text-shadow: 0 0 20px rgba(255,68,68,0.5), 0 0 40px rgba(255,68,68,0.3);
+            margin-bottom: 0.5rem;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(255,68,68,0.5), 0 0 40px rgba(255,68,68,0.3); }
+            50% { text-shadow: 0 0 30px rgba(255,68,68,0.8), 0 0 60px rgba(255,68,68,0.5); }
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+        }
+
+        .project-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .info-badge {
+            background: rgba(255,68,68,0.1);
+            border: 1px solid rgba(255,68,68,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        nav {
+            background: rgba(26,31,58,0.9);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,68,68,0.2);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255,68,68,0.2);
+            color: #ff4444;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            background: rgba(26,31,58,0.6);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255,68,68,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        h2 {
+            color: #ff4444;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(255,68,68,0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #ff6666;
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, rgba(30,35,60,0.9) 0%, rgba(20,25,45,0.9) 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .role-zombie {
+            border-color: #44ff44;
+            box-shadow: 0 0 20px rgba(68,255,68,0.2);
+        }
+
+        .role-zombie:hover {
+            box-shadow: 0 0 30px rgba(68,255,68,0.4);
+        }
+
+        .role-villageois {
+            border-color: #4444ff;
+            box-shadow: 0 0 20px rgba(68,68,255,0.2);
+        }
+
+        .role-villageois:hover {
+            box-shadow: 0 0 30px rgba(68,68,255,0.4);
+        }
+
+        .role-sheriff {
+            border-color: #ffaa44;
+            box-shadow: 0 0 20px rgba(255,170,68,0.2);
+        }
+
+        .role-sheriff:hover {
+            box-shadow: 0 0 30px rgba(255,170,68,0.4);
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-box {
+            background: rgba(255,68,68,0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #ff4444;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            margin-top: 0.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #ff4444 0%, #ff6666 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0;
+            width: 15px;
+            height: 15px;
+            background: #ff4444;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,68,68,0.5);
+        }
+
+        .timeline-phase {
+            color: #ff6666;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            background: rgba(255,68,68,0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,68,68,0.2);
+            text-align: center;
+        }
+
+        .member-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff6666;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-role {
+            color: #a0a0a0;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .feature-list li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255,68,68,0.05);
+            border-left: 3px solid #ff4444;
+            border-radius: 5px;
+        }
+
+        .feature-list li::before {
+            content: '✓ ';
+            color: #44ff44;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff4444 0%, #cc3333 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255,68,68,0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,68,68,0.5);
+        }
+
+        footer {
+            background: rgba(15,20,25,0.95);
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid rgba(255,68,68,0.3);
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: #a0a0a0;
+        }
+
+        .highlight {
+            color: #ff6666;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .roles-grid, .stats-grid, .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Z RUSH</div>
+        <div class="tagline">Jeu de Déduction Sociale Multijoueur</div>
+        <div class="project-info">
+            <span class="info-badge">🎓 EPITA SUP - Projet 1ère année</span>
+            <span class="info-badge">🎮 10 joueurs simultanés</span>
+            <span class="info-badge">⏱️ Parties de 5-15 minutes</span>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#concept">Concept</a></li>
+            <li><a href="#roles">Rôles</a></li>
+            <li><a href="#gameplay">Gameplay</a></li>
+            <li><a href="#techniques">Caractéristiques</a></li>
+            <li><a href="#equipe">Équipe</a></li>
+            <li><a href="#planning">Planning</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <section id="concept">
+            <h2>🎯 Le Concept</h2>
+            <p style="font-size: 1.2rem; line-height: 1.8;">
+                <strong>Z Rush</strong> est un jeu de déduction sociale multijoueur en 2D avec vue en plongée. 
+                Dans une forêt sombre et mystérieuse, <span class="highlight">2 zombies</span> tentent d'infecter 
+                <span class="highlight">7 villageois</span> pendant la nuit, tandis qu'<span class="highlight">1 shérif</span> 
+                et les villageois doivent identifier et éliminer les zombies pendant le jour.
+            </p>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">Joueurs simultanés</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">45s</div>
+                    <div class="stat-label">Phase de nuit</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">60s</div>
+                    <div class="stat-label">Phase de jour</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">30 FPS</div>
+                    <div class="stat-label">Performance minimale</div>
+                </div>
+            </div>
+
+            <h3>🎮 Objectifs du Projet</h3>
+            <ul class="feature-list">
+                <li>Créer une expérience de jeu immersive avec une ambiance unique</li>
+                <li>Développer nos compétences en programmation réseau et gestion de projet</li>
+                <li>Assurer un équilibre parfait entre les différents rôles</li>
+                <li>Livrer un prototype jouable en 10 semaines</li>
+                <li>Maintenir une latence inférieure à 100ms pour une expérience fluide</li>
+            </ul>
+        </section>
+
+        <section id="roles">
+            <h2>👥 Les Trois Rôles</h2>
+            
+            <div class="roles-grid">
+                <div class="role-card role-zombie">
+                    <div class="role-icon">🧟</div>
+                    <div class="role-title" style="color: #44ff44;">LES ZOMBIES (x2)</div>
+                    <p><strong>Objectif :</strong> Infecter tous les villageois pendant la nuit</p>
+                    <h4 style="color: #66ff66; margin-top: 1rem;">Capacités :</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Zone d'infection visible (rayon d'action)</li>
+                        <li>Peuvent infecter pendant la phase de nuit</li>
+                        <li>Vision constante jour et nuit</li>
+                        <li>Connaissent l'identité de tous les joueurs</li>
+                    </ul>
+                    <p style="margin-top: 1rem; color: #ff6666;"><strong>Risque :</strong> Éliminés définitivement s'ils sont tués par le shérif</p>
+                </div>
+
+                <div class="role-card role-villageois">
+                    <div class="role-icon">👤</div>
+                    <div class="role-title" style="color: #4444ff;">LES VILLAGEOIS (x7)</div>
+                    <p><strong>Objectif :</strong> Survivre et aider à identifier les zombies</p>
+                    <h4 style="color: #6666ff; margin-top: 1rem;">Capacités :</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Zone de pointage pour signaler des suspects</li>
+                        <li>Peuvent signaler au shérif (jour uniquement)</li>
+                        <li>Vision réduite la nuit, élargie le jour</li>
+                        <li>Doivent observer et déduire les zombies</li>
+                    </ul>
+                    <p style="margin-top: 1rem; color: #ff6666;"><strong>Risque :</strong> Deviennent spectateurs puis zombies s'ils sont infectés</p>
+                </div>
+
+                <div class="role-card role-sheriff">
+                    <div class="role-icon">⭐</div>
+                    <div class="role-title" style="color: #ffaa44;">LE SHÉRIF (x1)</div>
+                    <p><strong>Objectif :</strong> Éliminer tous les zombies pour sauver le village</p>
+                    <h4 style="color: #ffcc66; margin-top: 1rem;">Capacités :</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>3 balles par phase de jour</li>
+                        <li>Peut éliminer définitivement les zombies</li>
+                        <li>Mini-map affichant les signalements (points rouges)</li>
+                        <li>Apparence distinctive visible par tous</li>
+                    </ul>
+                    <p style="margin-top: 1rem; color: #ff6666;"><strong>Restriction :</strong> Ne peut pas tirer pendant la nuit</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="gameplay">
+            <h2>🎲 Déroulement d'une Partie</h2>
+            
+            <h3>🌙 Phase de Nuit (45 secondes)</h3>
+            <ul class="feature-list">
+                <li>Le champ de vision des villageois et du shérif est réduit</li>
+                <li>Les zombies se déplacent et repèrent leurs cibles</li>
+                <li>Les zombies peuvent infecter les villageois isolés</li>
+                <li>Le shérif ne peut pas utiliser ses armes</li>
+                <li>Atmosphère sombre et tendue</li>
+            </ul>
+
+            <h3>☀️ Phase de Jour (60 secondes)</h3>
+            <ul class="feature-list">
+                <li>Le champ de vision s'élargit pour tous</li>
+                <li>Les villageois observent les comportements suspects</li>
+                <li>Les villageois peuvent signaler des suspects au shérif</li>
+                <li>Le shérif voit les signalements sur sa mini-map (points rouges)</li>
+                <li>Le shérif peut éliminer jusqu'à 3 zombies avec ses balles</li>
+            </ul>
+
+            <h3>🏆 Conditions de Victoire</h3>
+            <p style="margin-top: 1rem; font-size: 1.1rem;">
+                <strong style="color: #44ff44;">Victoire des Zombies :</strong> Tous les villageois sont infectés ou éliminés<br>
+                <strong style="color: #4444ff;">Victoire des Villageois :</strong> Tous les zombies sont éliminés par le shérif
+            </p>
+        </section>
+
+        <section id="techniques">
+            <h2>⚙️ Caractéristiques Techniques</h2>
+            
+            <h3>🖥️ Technologies Utilisées</h3>
+            <ul class="feature-list">
+                <li><strong>Langage :</strong> Python 3.x</li>
+                <li><strong>Graphismes :</strong> Pygame (bibliothèque 2D)</li>
+                <li><strong>Architecture :</strong> Client-Serveur avec synchronisation temps réel</li>
+                <li><strong>Réseau :</strong> Socket et Threading pour gérer 10 joueurs simultanés</li>
+                <li><strong>Plateformes :</strong> Windows, Linux, macOS</li>
+            </ul>
+
+            <h3>📊 Performances Visées</h3>
+            <ul class="feature-list">
+                <li>Latence réseau inférieure à 100ms</li>
+                <li>Taux de rafraîchissement minimum de 30 FPS</li>
+                <li>Temps de connexion sous 5 secondes</li>
+                <li>Synchronisation parfaite du cycle jour/nuit entre tous les joueurs</li>
+                <li>Support stable de 10 joueurs sans dégradation</li>
+            </ul>
+
+            <h3>🎨 Fonctionnalités Implémentées</h3>
+            <ul class="feature-list">
+                <li>Système de lobby avec code de session unique</li>
+                <li>Attribution aléatoire et secrète des rôles</li>
+                <li>Cycle automatique jour/nuit avec timer visible</li>
+                <li>Zones d'action visuelles (infection, pointage, élimination)</li>
+                <li>HUD adapté à chaque rôle avec informations essentielles</li>
+                <li>Effets sonores et ambiance audio immersive</li>
+                <li>Mini-map pour le shérif avec système de signalement</li>
+            </ul>
+        </section>
+
+        <section id="equipe">
+            <h2>👨‍💻 L'Équipe Z Rush</h2>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-name">Loris</div>
+                    <div class="member-role">Chef de Projet & Game Design</div>
+                    <p style="margin-top: 1rem; color: #a0a0a0;">Conception des mécaniques, équilibrage, coordination de l'équipe</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-name">Alban</div>
+                    <div class="member-role">Responsable Son & Technique</div>
+                    <p style="margin-top: 1rem; color: #a0a0a0;">Création audio, effets sonores, ambiance, support technique</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-name">Marius</div>
+                    <div class="member-role">Développeur</div>
+                    <p style="margin-top: 1rem; color: #a0a0a0;">Développement système réseau, architecture client-serveur</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-name">Maxime</div>
+                    <div class="member-role">Développeur</div>
+                    <p style="margin-top: 1rem; color: #a0a0a0;">Gameplay, mécaniques de jeu, interface utilisateur</p>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 2rem; font-size: 1.1rem;">
+                <strong>Ressources :</strong> 110 jours-homme estimés | <strong>Budget :</strong> 0€ (projet étudiant)<br>
+                <strong>Organisation :</strong> GitLab pour le suivi, Discord pour la coordination
+            </p>
+        </section>
+
+        <section id="planning">
+            <h2>📅 Planning de Développement</h2>
+            <p style="margin-bottom: 2rem; font-size: 1.1rem;">Projet sur 10 semaines - Décembre 2025</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 1 : Pré-production (Semaines 1-2)</div>
+                    <p>Définition du concept, rédaction du Game Design Document, création du cahier des charges, mise en place de l'environnement de développement</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 2 : Développement Core (Semaines 3-5)</div>
+                    <p>Implémentation système client-serveur, cycle jour/nuit, création des 3 rôles, système d'infection/élimination/signalement, prototype jouable en local</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 3 : Optimisation & Interface (Semaines 6-8)</div>
+                    <p>Interface utilisateur et HUD, système lobby et connexion, intégration audio, équilibrage des mécaniques, premiers tests multijoueur</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 4 : Tests & Finalisation (Semaines 9-10)</div>
+                    <p>Sessions de tests intensifs avec 10 joueurs, correction des bugs, ajustements finaux, documentation technique, présentation finale</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">🎯 Jalons Importants</h3>
+            <ul class="feature-list">
+                <li><strong>Fin Semaine 2 :</strong> CDSF validé, GDD complet</li>
+                <li><strong>Fin Semaine 5 :</strong> Prototype local fonctionnel</li>
+                <li><strong>Fin Semaine 8 :</strong> Version multijoueur complète</li>
+                <li><strong>Fin Semaine 10 :</strong> Livraison finale + présentation</li>
+            </ul>
+        </section>
+
+        <section style="text-align: center; background: linear-gradient(135deg, rgba(255,68,68,0.1) 0%, rgba(255,68,68,0.05) 100%);">
+            <h2>🚀 Prêt à Rejoindre la Partie ?</h2>
+            <p style="font-size: 1.2rem; margin: 1.5rem 0;">
+                Z Rush arrive bientôt ! Survivrez-vous à la nuit ou rejoindrez-vous les zombies ?
+            </p>
+            <a href="#" class="cta-button">En Savoir Plus</a>
+        </section>
+    </div>
+
+    <footer>
+        <p class="footer-text">
+            <strong>Z Rush</strong> - Projet EPITA SUP 2025<br>
+            Développé par Loris, Alban, Marius et Maxime<br>
+            © 2025 Équipe Z Rush - Tous droits réservés
+        </p>
+    </footer>
+</body>
+</html>
